@@ -2,8 +2,6 @@ package sentrykratos
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"net"
 	"net/http"
 	"net/url"
@@ -13,6 +11,8 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
+	khttp "github.com/go-kratos/kratos/v2/transport/http"
 )
 
 const valuesKey = "sentry"
