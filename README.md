@@ -7,6 +7,7 @@ You could check the full demo in example folder.
 // Step 1: 
 // init sentry in the entry of your application
 import "github.com/getsentry/sentry-go"
+
 sentry.Init(sentry.ClientOptions{
 		Dsn: "<your dsn>",
 		AttachStacktrace: true, // recommended
@@ -16,6 +17,7 @@ sentry.Init(sentry.ClientOptions{
 // Step 2: 
 // set middleware
 import 	"github.com/go-kratos/sentry"
+
 // for http server
 m := http.Middleware(
     middleware.Chain(
