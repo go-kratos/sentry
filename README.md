@@ -1,5 +1,5 @@
 # [WIP] Sentry middleware for Kratos
-**This project is a Work In Progress**
+**This project is in very early development stage, DO NOT USE**
 
 ## Quick Start
 You could check the full demo in example folder.
