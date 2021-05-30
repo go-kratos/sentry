@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "example/api/helloworld/v1"
+	"example/api/helloworld/v1"
 	"example/internal/conf"
 	"example/internal/service"
 	"github.com/go-kratos/kratos/v2/log"
@@ -10,7 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/go-kratos/sentry"
+	sentrykratos "github.com/go-kratos/sentry"
 )
 
 // NewGRPCServer new a gRPC server.

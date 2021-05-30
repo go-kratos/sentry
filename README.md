@@ -16,7 +16,7 @@ sentry.Init(sentry.ClientOptions{
 
 // Step 2: 
 // set middleware
-import 	"github.com/go-kratos/sentry"
+import 	sentrykratos "github.com/go-kratos/sentry"
 
 // for http server
 m := http.Middleware(

@@ -1,4 +1,4 @@
-package sentrykratos
+package sentry
 
 import (
 	"context"
