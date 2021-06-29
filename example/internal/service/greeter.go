@@ -19,7 +19,7 @@ type GreeterService struct {
 
 // NewGreeterService new a greeter service.
 func NewGreeterService(uc *biz.GreeterUsecase, logger log.Logger) *GreeterService {
-	return &GreeterService{uc: uc, log: log.NewHelper("service/greeter", logger)}
+	return &GreeterService{uc: uc, log:  log.NewHelper(log.With(logger, "module", "service/greeter"))}
 }
 
 // SayHello implements helloworld.GreeterServer
@@ -27,7 +27,7 @@ func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1
 	s.log.Infof("SayHello Received: %v", in.GetName())
 	panic("hahahahah")
 	if in.GetName() == "error" {
-		return nil, errors.NotFound("greeter", v1.ErrorReason_USER_NOT_FOUND.String(), in.GetName())
+		return nil, errors.NotFound(v1.ErrorReason_USER_NOT_FOUND.String(), in.GetName())
 	}
 	return &v1.HelloReply{Message: "Hello " + in.GetName()}, nil
 }

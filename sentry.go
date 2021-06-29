@@ -3,16 +3,15 @@ package sentry
 import (
 	"context"
 	"net"
-	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	http2 "github.com/go-kratos/kratos/v2/transport/http"
 )
 
 const valuesKey = "sentry"
@@ -62,7 +61,26 @@ func Server(opts ...Option) middleware.Middleware {
 				hub = sentry.CurrentHub().Clone()
 			}
 			scope := hub.Scope()
-			scope.SetRequest(convert(ctx))
+			if tr, ok := transport.FromServerContext(ctx); ok {
+				switch tr.Kind() {
+				case transport.KindGRPC:
+					gtr := tr.(*grpc.Transport)
+					scope.SetContext("gRPC", map[string]interface{}{
+						"endpoint":  gtr.Endpoint(),
+						"operation": gtr.Operation(),
+					})
+					headers := make(map[string]interface{})
+					for _, k := range gtr.Header().Keys() {
+						headers[k] = gtr.Header().Get(k)
+					}
+					scope.SetContext("Headers", headers)
+				case transport.KindHTTP:
+					htr := tr.(*http2.Transport)
+					r := htr.Request()
+					scope.SetRequest(r)
+				}
+			}
+
 			context.WithValue(ctx, valuesKey, hub)
 			defer recoverWithSentry(options, hub, ctx, req)
 			return handler(ctx, req)
@@ -99,31 +117,10 @@ func isBrokenPipeError(err interface{}) bool {
 	return false
 }
 
-// GetHubFromContext retrieves attached *sentry.Hub instance from gin.Context.
+// GetHubFromContext retrieves attached *sentry.Hub instance from context.
 func GetHubFromContext(ctx context.Context) *sentry.Hub {
 	if hub, ok := ctx.Value(valuesKey).(*sentry.Hub); ok {
 		return hub
 	}
 	return nil
-}
-
-func convert(ctx context.Context) *http.Request {
-	defer func() {
-		if err := recover(); err != nil {
-			sentry.Logger.Printf("%v", err)
-		}
-	}()
-
-	r := new(http.Request)
-	if info, ok := grpc.FromServerContext(ctx); ok {
-		r.Method = "POST"
-		r.URL, _ = url.Parse(info.FullMethod)
-	} else if info, ok := khttp.FromServerContext(ctx); ok {
-		r.Method = info.Request.Method
-		r.URL = info.Request.URL
-		r.Header = info.Request.Header
-		r.Host = info.Request.Host
-		r.RemoteAddr = info.Request.RemoteAddr
-	}
-	return r
 }

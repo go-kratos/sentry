@@ -1,5 +1,4 @@
-# [WIP] Sentry middleware for Kratos
-**This project is in very early development stage, DO NOT USE**
+# Sentry middleware for Kratos
 
 ## Quick Start
 You could check the full demo in example folder.
@@ -18,26 +17,26 @@ sentry.Init(sentry.ClientOptions{
 // set middleware
 import 	sentrykratos "github.com/go-kratos/sentry"
 
-// for http server
-m := http.Middleware(
-    middleware.Chain(
-        recovery.Recovery(),
-        sentrykratos.Server(), // must after Recovery middleware
-        tracing.Server(),
-        logging.Server(logger),
-    ),
+// for HTTP server, new HTTP server with sentry middleware options
+var opts = []http.ServerOption (
+	http.Middleware(
+		recovery.Recovery(), 
+		sentrykratos.Server(), // must after Recovery middleware, because of the exiting order will be reversed
+		tracing.Server(),
+		logging.Server(logger), 
+	),
 )
-// for grpc server
+
+// for gRPC server, new gRPC server with sentry middleware options
 var opts = []grpc.ServerOption{
      grpc.Middleware(
-         middleware.Chain(
-             recovery.Recovery(),
-             sentrykratos.Server(), // must after Recovery middleware
-             tracing.Server(),
-             logging.Server(logger),
-         ),
+     	recovery.Recovery(),
+     	sentrykratos.Server(), // must after Recovery middleware, because of the exiting order will be reversed
+		tracing.Server(),
+		logging.Server(logger),
      ),
  }
+
 
 // Then, the framework will report events to Sentry when your trigger panics.
 // Or your can push events to Sentry manually

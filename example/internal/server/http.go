@@ -10,12 +10,21 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	sentrykratos "github.com/go-kratos/sentry"
+	"github.com/go-kratos/sentry"
 )
 
 // NewHTTPServer new a HTTP server.
 func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
-	var opts = []http.ServerOption{}
+	var opts = []http.ServerOption{
+		http.Middleware(
+			middleware.Chain(
+				recovery.Recovery(),
+				sentry.Server(),
+				tracing.Server(),
+				logging.Server(logger),
+			),
+		),
+	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
 	}
@@ -26,14 +35,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	m := http.Middleware(
-		middleware.Chain(
-			recovery.Recovery(),
-			sentrykratos.Server(),
-			tracing.Server(),
-			logging.Server(logger),
-		),
-	)
-	srv.HandlePrefix("/", v1.NewGreeterHandler(greeter, m))
+
+	v1.RegisterGreeterHTTPServer(srv, greeter)
 	return srv
 }
