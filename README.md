@@ -18,14 +18,14 @@ sentry.Init(sentry.ClientOptions{
 import 	sentrykratos "github.com/go-kratos/sentry"
 
 // for HTTP server, new HTTP server with sentry middleware options
-var opts = []http.ServerOption (
+var opts = []http.ServerOption{
 	http.Middleware(
 		recovery.Recovery(), 
 		sentrykratos.Server(), // must after Recovery middleware, because of the exiting order will be reversed
 		tracing.Server(),
 		logging.Server(logger), 
 	),
-)
+}
 
 // for gRPC server, new gRPC server with sentry middleware options
 var opts = []grpc.ServerOption{
