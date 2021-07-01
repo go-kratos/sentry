@@ -30,8 +30,8 @@ var opts = []http.ServerOption{
 // for gRPC server, new gRPC server with sentry middleware options
 var opts = []grpc.ServerOption{
      grpc.Middleware(
-     	recovery.Recovery(),
-     	sentrykratos.Server(), // must after Recovery middleware, because of the exiting order will be reversed
+		recovery.Recovery(),
+		sentrykratos.Server(), // must after Recovery middleware, because of the exiting order will be reversed
 		tracing.Server(),
 		logging.Server(logger),
      ),
