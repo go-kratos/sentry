@@ -70,8 +70,8 @@ func Server(opts ...Option) middleware.Middleware {
 						"operation": gtr.Operation(),
 					})
 					headers := make(map[string]interface{})
-					for _, k := range gtr.Header().Keys() {
-						headers[k] = gtr.Header().Get(k)
+					for _, k := range gtr.RequestHeader().Keys() {
+						headers[k] = gtr.RequestHeader().Get(k)
 					}
 					scope.SetContext("Headers", headers)
 				case transport.KindHTTP:
